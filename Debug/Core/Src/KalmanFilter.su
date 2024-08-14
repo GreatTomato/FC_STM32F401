@@ -1,0 +1,2 @@
+../Core/Src/KalmanFilter.c:13:6:InitializeKalman_second	16	static
+../Core/Src/KalmanFilter.c:24:6:CalculateKalman_second	64	static
