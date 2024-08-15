@@ -28,8 +28,8 @@ daMa_calc_status calculateAngle_acc(KF_second_struct_t * KF_struct, MPU6050_acce
 		float32_t Z_sqr = measured.Z*measured.Z;
 		KF_struct->r_x = sqrt((SeVe_sqr*MPU6050_ACCEL_ERROR_SQR+Z_sqr*MPU6050_ACCEL_ERROR_SQR)
 										/(SeVe_sqr+Z_sqr));
-		KF_struct->r_xdt = KF_struct->r_x/1;/* 1 second*/
-		KF_struct->r_xdt2 = 2*KF_struct->r_x/1;/* 1 second^2*/
+		//KF_struct->r_xdt = KF_struct->r_x/1;/* 1 second*/
+		//KF_struct->r_xdt2 = 2*KF_struct->r_x/(1*1);/* 1 second^2*/
 	}
 	return DAMA_CALC_STATUS_SUCCSESS;
 }

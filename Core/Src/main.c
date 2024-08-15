@@ -123,7 +123,7 @@ int main(void)
   {
     /* USER CODE END WHILE */
 	  uint8_t buffer[200];
-	  uint16_t buffer_len = sprintf(buffer, "%10.5f\t%10.5f\t%10.5f\t%10.5f\r\n",KF_Pitch.x*57.295779513082320876798154814105,KF_Pitch.xdt*57.295779513082320876798154814105,KF_Pitch.xdt2*57.295779513082320876798154814105,measuredPitchAngle*57.295779513082320876798154814105);
+	  uint16_t buffer_len = sprintf(buffer, "%20.5f\t%20.5f\t%20.5f\t%20.5f\r\n",KF_Pitch.x*57.295779513082320876798154814105,KF_Pitch.xdt*57.295779513082320876798154814105,KF_Pitch.xdt2*57.295779513082320876798154814105,measuredPitchAngle*57.295779513082320876798154814105);
 	  HAL_UART_Transmit(&huart1, buffer ,buffer_len, 1000);
     /* USER CODE BEGIN 3 */
   }

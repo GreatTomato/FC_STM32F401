@@ -8,6 +8,7 @@
 #include "KalmanFilter.h"
 #define DEG_TO_PI 0.01745329251994329576923690768489
 #define DEG_TO_PI_sqr 0.00030461741978670859934674354937889
+#define PI_TO_DEG 57.295779513082320876798154814105
 
 //Initialization of Kalaman structure for variable that changes up to second time derivative
 void InitializeKalman_second(KF_second_struct_t* KF_struct){
@@ -16,8 +17,8 @@ void InitializeKalman_second(KF_second_struct_t* KF_struct){
 	KF_struct->p_xdt2 = KF_struct->p_xdt =KF_struct->p_x = DEG_TO_PI*DEG_TO_PI*180*180;
 
 	KF_struct->q_x = 0.001;
-	KF_struct->q_xdt = 0.01;
-	KF_struct->q_xdt2 = 10000;
+	KF_struct->q_xdt = 100;
+	KF_struct->q_xdt2 = .15;
 }
 
 //Calculation with Kalman filter for variable that changes up to second time derivative
@@ -35,11 +36,13 @@ void CalculateKalman_second(KF_second_struct_t* KF_struct, float32_t measured){
 
 	/*		Update		*/
 	K_x = KF_struct->p_x/(KF_struct->p_x+KF_struct->r_x);
+	KF_struct->r_xdt = KF_struct->xdt*KF_struct->r_x/(measured-KF_struct->x);
 	K_xdt = KF_struct->p_xdt/(KF_struct->p_xdt+KF_struct->r_xdt);
 	K_xdt2 = KF_struct->p_xdt2/(KF_struct->p_xdt2+KF_struct->r_xdt2);
 
 	/*		Estimate		*/
 	float32_t x_change = measured-KF_struct->x;
+	float32_t tmp1 = x_change*PI_TO_DEG;
 	x_11 = KF_struct->x + K_x*(x_change);
 	p_11_x = (1-K_x)*KF_struct->p_x;
 	xdt_11 = KF_struct->xdt + K_xdt*(x_change/READ_MPU_TIME);
@@ -47,14 +50,18 @@ void CalculateKalman_second(KF_second_struct_t* KF_struct, float32_t measured){
 	xdt2_11 = KF_struct->xdt2 + K_xdt2*(2*x_change/(READ_MPU_TIME*READ_MPU_TIME));
 	p_11_xdt2 = (1-K_xdt2)*KF_struct->p_xdt2;
 
-	/*		Predict		*/
-	KF_struct->x = x_11 + xdt_11*READ_MPU_TIME + xdt2_11*READ_MPU_TIME*READ_MPU_TIME*.5;
-	KF_struct->xdt = xdt_11 + xdt2_11 * READ_MPU_TIME;
-	KF_struct->xdt2 = xdt2_11;
 
-	KF_struct->p_x = p_11_x + p_11_xdt*READ_MPU_TIME*READ_MPU_TIME + p_11_xdt2 * READ_MPU_TIME*READ_MPU_TIME*READ_MPU_TIME*READ_MPU_TIME * 0.25;
-	KF_struct->p_xdt =	p_11_xdt + p_11_xdt2 * READ_MPU_TIME*READ_MPU_TIME;
-	KF_struct->p_xdt2 = p_11_xdt2 + KF_struct->q_xdt2;
+
+	float32_t tmp2 = x_11*PI_TO_DEG;
+	float32_t tmp3 = xdt_11*PI_TO_DEG;
+	/*		Predict		*/
+	KF_struct->x = x_11 + xdt_11*READ_MPU_TIME /*+ xdt2_11*READ_MPU_TIME*READ_MPU_TIME*.5/**/;
+	KF_struct->xdt = xdt_11/*+ xdt2_11 * READ_MPU_TIME/**/;
+	/*KF_struct->xdt2 = xdt2_11;*/
+
+	KF_struct->p_x = p_11_x + p_11_xdt*READ_MPU_TIME*READ_MPU_TIME/* + p_11_xdt2 * READ_MPU_TIME*READ_MPU_TIME*READ_MPU_TIME*READ_MPU_TIME * 0.25*/;
+	KF_struct->p_xdt =	p_11_xdt + /*p_11_xdt2 * READ_MPU_TIME*READ_MPU_TIME;*/KF_struct->q_xdt;
+	//KF_struct->p_xdt2 = p_11_xdt2 + KF_struct->q_xdt2;
 };
 
 
